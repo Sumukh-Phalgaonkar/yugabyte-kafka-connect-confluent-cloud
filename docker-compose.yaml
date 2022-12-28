@@ -1,0 +1,81 @@
+version: '3'
+services:
+  kafka-connect-ccloud:
+    image: custom-connect:latest 
+    container_name: kafka-connect-ccloud
+    ports:
+      - 8083:8083
+    environment:
+      CONNECT_LOG4J_APPENDER_STDOUT_LAYOUT_CONVERSIONPATTERN: "[%d] %p %X{connector.context}%m (%c:%L)%n"
+      CONNECT_CUB_KAFKA_TIMEOUT: 300
+      CONNECT_BOOTSTRAP_SERVERS: "pkc-l7pr2.ap-south-1.aws.confluent.cloud:9092"
+      CONNECT_REST_ADVERTISED_HOST_NAME: 'kafka-connect-ccloud'
+      CONNECT_REST_PORT: 8083
+      CONNECT_GROUP_ID: kafka-connect-group-01-v04
+      CONNECT_CONFIG_STORAGE_TOPIC: _kafka-connect-group-01-v04-configs
+      CONNECT_OFFSET_STORAGE_TOPIC: _kafka-connect-group-01-v04-offsets
+      CONNECT_STATUS_STORAGE_TOPIC: _kafka-connect-group-01-v04-status
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_LOG4J_ROOT_LOGLEVEL: 'INFO'
+      CONNECT_LOG4J_LOGGERS: 'org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR'
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: '3'
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: '3'
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: '3'
+      CONNECT_PLUGIN_PATH: '/usr/share/java,/usr/share/confluent-hub-components/'
+      # Confluent Cloud config
+      CONNECT_REQUEST_TIMEOUT_MS: "20000"
+      CONNECT_RETRY_BACKOFF_MS: "500"
+      CONNECT_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: "https"
+      CONNECT_SASL_MECHANISM: "PLAIN"
+      CONNECT_SECURITY_PROTOCOL: "SASL_SSL"
+      CONNECT_SASL_JAAS_CONFIG: "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"QQT4ZUTVP4XDP7HC\" password=\"g/+QDAo/qxlcHi0Yr7ZQkjP7MEobbffjuJYJmZchzH4ZJd91uH9exdTgpltJ6WzZ\";"
+      #
+      CONNECT_CONSUMER_SECURITY_PROTOCOL: "SASL_SSL"
+      CONNECT_CONSUMER_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: "https"
+      CONNECT_CONSUMER_SASL_MECHANISM: "PLAIN"
+      CONNECT_CONSUMER_SASL_JAAS_CONFIG: "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"QQT4ZUTVP4XDP7HC\" password=\"g/+QDAo/qxlcHi0Yr7ZQkjP7MEobbffjuJYJmZchzH4ZJd91uH9exdTgpltJ6WzZ\";"
+      CONNECT_CONSUMER_REQUEST_TIMEOUT_MS: "20000"
+      CONNECT_CONSUMER_RETRY_BACKOFF_MS: "500"
+      #
+      CONNECT_PRODUCER_SECURITY_PROTOCOL: "SASL_SSL"
+      CONNECT_PRODUCER_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: "https"
+      CONNECT_PRODUCER_SASL_MECHANISM: "PLAIN"
+      CONNECT_PRODUCER_SASL_JAAS_CONFIG: "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"QQT4ZUTVP4XDP7HC\" password=\"g/+QDAo/qxlcHi0Yr7ZQkjP7MEobbffjuJYJmZchzH4ZJd91uH9exdTgpltJ6WzZ\";"
+      CONNECT_PRODUCER_REQUEST_TIMEOUT_MS: "20000"
+      CONNECT_PRODUCER_RETRY_BACKOFF_MS: "500"
+    command:
+      - bash
+      - -c
+      - |
+        echo "Launching Kafka Connect worker"
+        /etc/confluent/docker/run &
+        #
+        echo "Waiting for Kafka Connect to start listening on localhost:8083 ⏳"
+        while : ; do
+            curl_status=$$(curl -s -o /dev/null -w %{http_code} http://localhost:8083/connectors)
+            echo -e $$(date) " Kafka Connect listener HTTP state: " $$curl_status " (waiting for 200)"
+            if [ $$curl_status -eq 200 ] ; then
+            break
+            fi
+            sleep 5
+        done
+        echo -e "\n--\n+> Creating Kafka Connect source connectors"
+        curl -s -X PUT -H  "Content-Type:application/json" \
+        http://localhost:8083/connectors/ybconnector1/config \
+            -d '{
+              "tasks.max":"1",
+              "connector.class": "io.debezium.connector.yugabytedb.YugabyteDBConnector",
+              "database.hostname":"172.165.20.83",
+              "database.master.addresses":"172.165.20.83:7100",
+              "database.port":"5433",
+              "database.user": "yugabyte",
+              "database.password":"yugabyte",
+              "database.dbname":"yugabyte",
+              "database.server.name": "dbserver4",
+              "snapshot.mode":"never",
+              "table.include.list":"public.product",
+              "database.streamid":"452ce19ebf72492e8bb544c076073107"
+            }'
+        #
+        sleep infinity
