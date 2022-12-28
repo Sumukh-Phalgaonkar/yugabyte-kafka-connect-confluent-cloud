@@ -29,19 +29,19 @@ services:
       CONNECT_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: "https"
       CONNECT_SASL_MECHANISM: "PLAIN"
       CONNECT_SECURITY_PROTOCOL: "SASL_SSL"
-      CONNECT_SASL_JAAS_CONFIG: "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"QQT4ZUTVP4XDP7HC\" password=\"g/+QDAo/qxlcHi0Yr7ZQkjP7MEobbffjuJYJmZchzH4ZJd91uH9exdTgpltJ6WzZ\";"
+      CONNECT_SASL_JAAS_CONFIG: "*****************"
       #
       CONNECT_CONSUMER_SECURITY_PROTOCOL: "SASL_SSL"
       CONNECT_CONSUMER_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: "https"
       CONNECT_CONSUMER_SASL_MECHANISM: "PLAIN"
-      CONNECT_CONSUMER_SASL_JAAS_CONFIG: "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"QQT4ZUTVP4XDP7HC\" password=\"g/+QDAo/qxlcHi0Yr7ZQkjP7MEobbffjuJYJmZchzH4ZJd91uH9exdTgpltJ6WzZ\";"
+      CONNECT_CONSUMER_SASL_JAAS_CONFIG: "**************"
       CONNECT_CONSUMER_REQUEST_TIMEOUT_MS: "20000"
       CONNECT_CONSUMER_RETRY_BACKOFF_MS: "500"
       #
       CONNECT_PRODUCER_SECURITY_PROTOCOL: "SASL_SSL"
       CONNECT_PRODUCER_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: "https"
       CONNECT_PRODUCER_SASL_MECHANISM: "PLAIN"
-      CONNECT_PRODUCER_SASL_JAAS_CONFIG: "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"QQT4ZUTVP4XDP7HC\" password=\"g/+QDAo/qxlcHi0Yr7ZQkjP7MEobbffjuJYJmZchzH4ZJd91uH9exdTgpltJ6WzZ\";"
+      CONNECT_PRODUCER_SASL_JAAS_CONFIG: "******************"
       CONNECT_PRODUCER_REQUEST_TIMEOUT_MS: "20000"
       CONNECT_PRODUCER_RETRY_BACKOFF_MS: "500"
     command:
